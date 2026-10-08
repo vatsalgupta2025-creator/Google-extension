@@ -13,7 +13,7 @@ import type {
   CategoryOverride,
 } from '../types'
 
-const DB_NAME = 'focusos-db'
+const DB_NAME = 'Daymark-db'
 const DB_VERSION = 1
 
 let db: IDBPDatabase | null = null

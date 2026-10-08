@@ -514,7 +514,11 @@ function DashboardHome({
         setStreak((res.currentStreak as number) || 0);
       });
     } catch {}
-  }, []);
+    
+    if (!insight) {
+      onRefreshInsight();
+    }
+  }, [insight, onRefreshInsight]);
 
   const weekData = [
     { day: "Mon", prod: 210, dist: 70 },
@@ -551,6 +555,9 @@ function DashboardHome({
           <span>✨</span>
           <span>
             {(() => {
+              if (insight?.observation) {
+                return insight.observation;
+              }
               const goalsLeft = goals.filter((x) => x.deadline === TODAY).length - completions.length;
               if (goalsLeft > 0 && streak > 0) {
                 return `You have ${goalsLeft} goal${goalsLeft > 1 ? 's' : ''} left. Complete them to protect your ${streak}-day streak!`;
@@ -783,14 +790,9 @@ function DashboardHome({
             <p>
               <strong>🔍</strong> {insight.observation}
             </p>
-            {insight.evidence && (
+            {insight.explanation && (
               <p>
-                <strong>📊</strong> {insight.evidence}
-              </p>
-            )}
-            {insight.interpretation && (
-              <p>
-                <strong>💡</strong> {insight.interpretation}
+                <strong>💡</strong> {insight.explanation}
               </p>
             )}
             <div
@@ -805,11 +807,6 @@ function DashboardHome({
               <p>
                 <strong>🎯</strong> {insight.recommendation}
               </p>
-              {insight.nextAction && (
-                <p className="mt-2">
-                  <strong>⚡</strong> {insight.nextAction}
-                </p>
-              )}
             </div>
           </div>
         ) : (
@@ -1030,11 +1027,32 @@ function AnalyticsPage({ analytics, goals }: { analytics: DailyAnalytics; goals:
           {analytics.topSites.map((s, i) => (
             <div key={s.domain} className="doodle-card" style={{ padding: "12px 16px", marginBottom: 0 }}>
               <div className="flex items-center gap-3">
-                <div className="font-black" style={{ color: "var(--c-purple)", fontSize: 18 }}>#{i + 1}</div>
+                <div style={{ position: "relative", width: 32, height: 32, flexShrink: 0 }}>
+                  <img
+                    src={`https://www.google.com/s2/favicons?sz=32&domain=${s.domain}`}
+                    alt={s.domain}
+                    width={32}
+                    height={32}
+                    style={{ borderRadius: 6, border: "1.5px solid var(--border-color)", background: "var(--card-bg)" }}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
+                      (e.currentTarget.nextSibling as HTMLElement).style.display = "flex";
+                    }}
+                  />
+                  <div style={{
+                    display: "none", position: "absolute", inset: 0, borderRadius: 6,
+                    background: "var(--c-purple)", color: "white",
+                    alignItems: "center", justifyContent: "center",
+                    fontSize: 13, fontWeight: 900,
+                  }}>
+                    {s.domain[0]?.toUpperCase()}
+                  </div>
+                </div>
                 <div style={{ flex: 1 }}>
                   <div className="font-bold">{s.domain}</div>
                   <div className="flex gap-2 mt-1">
                     <span className="badge-doodle" style={{ background: SITE_CAT_COLOR[s.category] }}>{s.category}</span>
+                    <span style={{ fontSize: 11, opacity: 0.5, fontWeight: 700 }}>#{i + 1}</span>
                   </div>
                 </div>
                 <div className="font-black" style={{ fontSize: 18 }}>{formatSeconds(s.seconds)}</div>
@@ -1170,7 +1188,7 @@ function AIChatPage({
   >([
     {
       role: "ai",
-      text: `👋 Hey ${profile?.name || "there"}! I'm your FocusOS AI coach. I have access to your goals, browsing data, and notes today. Ask me anything!`,
+      text: `👋 Hey ${profile?.name || "there"}! I'm your Daymark AI coach. I have access to your goals, browsing data, and notes today. Ask me anything!`,
     },
   ]);
   const [input, setInput] = useState("");
@@ -1187,12 +1205,15 @@ function AIChatPage({
     setLoading(true);
 
     try {
+      const bundledKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const apiKeyToUse = profile?.aiApiKey || bundledKey;
+      const providerToUse = (profile?.aiApiKey && profile.aiProvider !== "none") ? profile.aiProvider : (bundledKey ? "gemini" : "none");
+
       let reply = "";
       if (
         settings.aiEnabled &&
-        settings.aiDataAccess.browsing &&
-        profile?.aiApiKey &&
-        profile.aiProvider !== "none"
+        apiKeyToUse &&
+        providerToUse !== "none"
       ) {
         const history: AIMessage[] = messages
           .filter((m) => m.role !== "ai" || messages.indexOf(m) > 0)
@@ -1203,8 +1224,8 @@ function AIChatPage({
         reply = await chatWithAI(
           ctx,
           history,
-          profile.aiApiKey,
-          profile.aiProvider,
+          apiKeyToUse,
+          providerToUse as "openai" | "gemini",
         );
       } else {
         await new Promise((r) => setTimeout(r, 800));
@@ -1212,11 +1233,13 @@ function AIChatPage({
       }
       setMessages((m) => [...m, { role: "ai", text: reply }]);
     } catch (e) {
+      const errMsg = e instanceof Error ? e.message : String(e);
+      console.error('[Daymark AI]', e);
       setMessages((m) => [
         ...m,
         {
           role: "ai",
-          text: "⚠️ AI request failed. Check your API key in Settings.",
+          text: `⚠️ AI error: ${errMsg}`,
         },
       ]);
     } finally {
@@ -1391,13 +1414,13 @@ function SettingsPage({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `focusos-export-${TODAY}.json`;
+    a.download = `Daymark-export-${TODAY}.json`;
     a.click();
     setExporting(false);
   };
 
   const clearData = async () => {
-    if (confirm("Delete ALL FocusOS data? This cannot be undone.")) {
+    if (confirm("Delete ALL Daymark data? This cannot be undone.")) {
       await deleteAllData();
       alert("Data cleared!");
     }
@@ -1812,16 +1835,18 @@ export default function App() {
   const handleRefreshInsight = useCallback(async () => {
     const ctx = buildAIContext(analytics, "", profile?.name || "User");
     let ins: AIInsight;
-    if (
-      settings?.aiEnabled &&
-      profile?.aiApiKey &&
-      profile.aiProvider !== "none"
-    ) {
+    
+    const bundledKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const userKey = profile?.aiApiKey;
+    const apiKeyToUse = userKey || bundledKey;
+    const providerToUse = userKey && profile?.aiProvider !== "none" ? profile.aiProvider : (bundledKey ? "gemini" : "none");
+
+    if (settings?.aiEnabled && apiKeyToUse && providerToUse !== "none") {
       try {
         ins = await generateDailyInsight(
           ctx,
-          profile.aiApiKey,
-          profile.aiProvider,
+          apiKeyToUse,
+          providerToUse as "openai" | "gemini",
         );
       } catch {
         ins = generateMockInsight(ctx);
@@ -1897,7 +1922,7 @@ export default function App() {
                 whiteSpace: "nowrap",
               }}
             >
-              FocusOS
+              Daymark
             </span>
           )}
         </div>

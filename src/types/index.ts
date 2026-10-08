@@ -99,10 +99,8 @@ export interface AIInsight {
   id: string
   date: string
   observation: string
-  evidence: string
-  interpretation: string
+  explanation: string
   recommendation: string
-  nextAction?: string
   generatedAt: number
 }
 

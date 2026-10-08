@@ -6,16 +6,18 @@ export interface AIMessage {
   content: string
 }
 
-const SYSTEM_PROMPT = `You are FocusOS AI — a personal productivity coach embedded in a Chrome extension.
-You have access to structured data about the user's goals, browsing habits, and daily notes.
-ALWAYS respond with:
-1. 🔍 Observation — what you notice
-2. 📊 Evidence — specific data backing it
-3. 💡 Interpretation — why this might be happening
-4. 🎯 Recommendation — one or two actionable steps
-5. ⚡ Next Action (optional) — something concrete to do right now
+const SYSTEM_PROMPT = `You are Daymark AI — a personal productivity intelligence system embedded in a Chrome extension.
+You evaluate the gap between:
+1. INTENTION → What the user planned to accomplish (Goals)
+2. BEHAVIOR → What the user actually did (Browser Activity & Sites)
+3. OUTCOME → Whether they completed their goals
 
-Be concise, warm, and direct. Avoid generic advice. Base everything on the data provided.
+ALWAYS respond with:
+1. 🔍 Observation — A concise summary comparing Intention, Behavior, and Outcome.
+2. 💡 Explanation — Why this might be happening (identify productivity leaks or strong focus patterns).
+3. 🎯 Recommendation — One actionable step to improve tomorrow or the next focus session.
+
+Be concise, warm, and direct. Avoid generic advice. Use neutral productivity language. Do not make medical or psychological diagnoses.
 Never make unsupported claims. If data is insufficient, say so clearly.`
 
 function contextToPrompt(ctx: AIContext): string {
@@ -62,10 +64,8 @@ export async function generateDailyInsight(
     id: generateId(),
     date: getTodayDate(),
     observation: extractSection(content, 'Observation') || content.slice(0, 200),
-    evidence: extractSection(content, 'Evidence') || '',
-    interpretation: extractSection(content, 'Interpretation') || '',
+    explanation: extractSection(content, 'Explanation') || '',
     recommendation: extractSection(content, 'Recommendation') || '',
-    nextAction: extractSection(content, 'Next Action'),
     generatedAt: Date.now(),
   }
 }
@@ -132,13 +132,20 @@ async function callGemini(
   messages: AIMessage[],
   apiKey: string
 ): Promise<string> {
-  const contents = [
-    ...(messages.map((m) => ({
+  // Build contents — must alternate user/model and start with user
+  const allMessages = [
+    ...messages.map((m) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }],
-    }))),
-    ...(userPrompt ? [{ role: 'user', parts: [{ text: userPrompt }] }] : []),
+    })),
+    ...(userPrompt ? [{ role: 'user' as const, parts: [{ text: userPrompt }] }] : []),
   ]
+
+  // Filter out leading model turns (Gemini requires user to go first)
+  const firstUserIdx = allMessages.findIndex((m) => m.role === 'user')
+  const contents = firstUserIdx >= 0 ? allMessages.slice(firstUserIdx) : allMessages
+
+  if (contents.length === 0) throw new Error('No user message to send')
 
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
@@ -148,19 +155,22 @@ async function callGemini(
       body: JSON.stringify({
         system_instruction: { parts: [{ text: system }] },
         contents,
-        generationConfig: { maxOutputTokens: 600, temperature: 0.7 },
+        generationConfig: { maxOutputTokens: 800, temperature: 0.7 },
       }),
     }
   )
 
-  if (!res.ok) throw new Error(`Gemini error: ${res.status}`)
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => '')
+    throw new Error(`Gemini ${res.status}: ${errBody.slice(0, 200)}`)
+  }
   const data = await res.json()
   return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response.'
 }
 
 function extractSection(text: string, label: string): string | undefined {
   const regex = new RegExp(
-    `(?:🔍|📊|💡|🎯|⚡)?\\s*${label}[:\\s]+([\\s\\S]+?)(?=(?:🔍|📊|💡|🎯|⚡)|$)`,
+    `(?:🔍|💡|🎯)?\\s*${label}[:\\s]+([\\s\\S]+?)(?=(?:🔍|💡|🎯)|$)`,
     'i'
   )
   const match = text.match(regex)
@@ -182,10 +192,7 @@ export function generateMockInsight(ctx: AIContext): AIInsight {
     id: generateId(),
     date: getTodayDate(),
     observation: `You completed ${ctx.goalsCompleted} of ${ctx.goalsTotal} goals today (${goalPct}%).`,
-    evidence: `${ctx.productiveMinutes}m productive vs ${ctx.distractingMinutes}m distracting. ${
-      topDistraction ? `Top distraction: ${topDistraction.domain} (${topDistraction.minutes}m)` : ''
-    }`,
-    interpretation:
+    explanation:
       goalPct >= 75
         ? 'Great focus today! Your productive sessions are paying off.'
         : goalPct >= 50
@@ -195,9 +202,6 @@ export function generateMockInsight(ctx: AIContext): AIInsight {
       goalPct < 75
         ? 'Try front-loading your hardest goal before noon tomorrow.'
         : 'Keep up the momentum — consider adding a stretch goal.',
-    nextAction: topDistraction
-      ? `Consider blocking ${topDistraction.domain} during focus hours tomorrow.`
-      : undefined,
     generatedAt: Date.now(),
   }
 }

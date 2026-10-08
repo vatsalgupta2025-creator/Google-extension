@@ -254,7 +254,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return true
   }
   if (message.type === 'GOAL_UPDATED') {
-    recalculateStreak().then((result) => sendResponse(result))
+    recalculateStreak().then((result) => {
+      scheduleGoalReminders().then(() => {
+        sendResponse(result)
+      })
+    })
     return true
   }
   if (message.type === 'GET_STREAK') {

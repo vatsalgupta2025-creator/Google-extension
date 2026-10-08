@@ -1760,12 +1760,22 @@ export default function App() {
 
   const handleAddGoal = useCallback(async (g: Goal) => {
     await saveGoal(g);
-    setGoals((prev) => [...prev, g]);
+    setGoals((prev) => {
+      const updated = [...prev, g];
+      try { chrome.storage.local.set({ goals: updated }); } catch {}
+      try { chrome.runtime.sendMessage({ type: 'GOAL_UPDATED' }); } catch {}
+      return updated;
+    });
   }, []);
 
   const handleDeleteGoal = useCallback(async (id: string) => {
     await deleteGoal(id);
-    setGoals((prev) => prev.filter((g) => g.id !== id));
+    setGoals((prev) => {
+      const updated = prev.filter((g) => g.id !== id);
+      try { chrome.storage.local.set({ goals: updated }); } catch {}
+      try { chrome.runtime.sendMessage({ type: 'GOAL_UPDATED' }); } catch {}
+      return updated;
+    });
   }, []);
 
   const handleUpdateGoal = useCallback(async (g: Goal) => {

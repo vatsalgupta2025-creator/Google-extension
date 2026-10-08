@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "FocusOS – AI Productivity Coach",
+  "version": "1.0.0",
+  "description": "Your AI-powered personal productivity and goal-tracking companion.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "FocusOS"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "tabs",
+    "history",
+    "storage",
+    "alarms",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["dashboard.html", "icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "options_page": "dashboard.html"
+}

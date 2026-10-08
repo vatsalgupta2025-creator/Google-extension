@@ -1,0 +1,397 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Caveat:wght@400;600;700&display=swap');
+
+/* ─── Light Theme Tokens ─────────────────────────────────────────────────── */
+:root {
+  --ink: #1a1a2e;
+  --paper: #fffdf5;
+  --card-bg: #ffffff;
+  --card-bg-hover: #fafafa;
+  --sidebar-bg: #ffffff;
+  --input-bg: #ffffff;
+  --border-color: #1a1a2e;
+  --text-primary: #1a1a2e;
+  --text-secondary: rgba(26,26,46,0.6);
+  --shadow: 3px 3px 0px #1a1a2e;
+  --shadow-lg: 5px 5px 0px #1a1a2e;
+  --shadow-hover: 6px 6px 0px #1a1a2e;
+  --shadow-sm: 2px 2px 0px #1a1a2e;
+  --divider: rgba(26,26,46,0.2);
+  --scrollbar: #1a1a2e;
+  --dot-color: rgba(0,0,0,0.04);
+
+  --c-yellow:  #ffd93d;
+  --c-orange:  #ff6b35;
+  --c-pink:    #ff6b9d;
+  --c-purple:  #c77dff;
+  --c-blue:    #4cc9f0;
+  --c-green:   #06d6a0;
+  --c-red:     #ef233c;
+  --c-mint:    #80ffdb;
+
+  --card-yellow: #ffd93d;
+  --card-orange: #fff0eb;
+  --card-pink:   #fff0f6;
+  --card-purple: #f5eeff;
+  --card-blue:   #e8faff;
+  --card-green:  #e6fff8;
+  --card-mint:   #f0fff8;
+
+  --border-doodle: 2.5px solid var(--border-color);
+  --radius-doodle: 16px;
+  --radius-sm: 10px;
+  --font-body: 'Nunito', sans-serif;
+  --font-hand: 'Caveat', cursive;
+}
+
+/* ─── Dark Theme Tokens ──────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --ink: #e8e6f0;
+  --paper: #0f0f1a;
+  --card-bg: #1a1a2e;
+  --card-bg-hover: #22223a;
+  --sidebar-bg: #13131f;
+  --input-bg: #22223a;
+  --border-color: #4a4a6a;
+  --text-primary: #e8e6f0;
+  --text-secondary: rgba(232,230,240,0.55);
+  --shadow: 3px 3px 0px #4a4a6a;
+  --shadow-lg: 5px 5px 0px #4a4a6a;
+  --shadow-hover: 6px 6px 0px #6a6a9a;
+  --shadow-sm: 2px 2px 0px #4a4a6a;
+  --divider: rgba(232,230,240,0.15);
+  --scrollbar: #4a4a6a;
+  --dot-color: rgba(255,255,255,0.025);
+
+  --c-yellow:  #e6b800;
+  --c-orange:  #ff7849;
+  --c-pink:    #ff7aad;
+  --c-purple:  #b57aff;
+  --c-blue:    #4dd9ff;
+  --c-green:   #00e8ad;
+  --c-red:     #ff4d6d;
+  --c-mint:    #00ffcc;
+
+  --card-yellow: #3d3000;
+  --card-orange: #2e1a0e;
+  --card-pink:   #2e0e1a;
+  --card-purple: #1e0e35;
+  --card-blue:   #0a2535;
+  --card-green:  #0a2a22;
+  --card-mint:   #0a2520;
+}
+
+/* ─── Reset ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--text-primary);
+  min-height: 100vh;
+  background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+  background-size: 24px 24px;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ─── Doodle Cards ───────────────────────────────────────────────────────── */
+.doodle-card {
+  background: var(--card-bg);
+  border: var(--border-doodle);
+  border-radius: var(--radius-doodle);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  color: var(--text-primary);
+  transition: box-shadow 0.15s ease, transform 0.15s ease, background 0.3s ease;
+}
+.doodle-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translate(-2px, -2px);
+}
+
+.doodle-card-yellow { background: var(--card-yellow); }
+.doodle-card-orange { background: var(--card-orange); }
+.doodle-card-pink   { background: var(--card-pink); }
+.doodle-card-purple { background: var(--card-purple); }
+.doodle-card-blue   { background: var(--card-blue); }
+.doodle-card-green  { background: var(--card-green); }
+.doodle-card-mint   { background: var(--card-mint); }
+
+/* ─── Doodle Buttons ─────────────────────────────────────────────────────── */
+.btn-doodle {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 14px;
+  padding: 10px 20px;
+  border: var(--border-doodle);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--c-yellow);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+.btn-doodle:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-hover);
+}
+.btn-doodle:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--border-color); }
+.btn-doodle-green  { background: var(--c-green); color: #0a2a22; }
+.btn-doodle-pink   { background: var(--c-pink); color: #fff; }
+.btn-doodle-blue   { background: var(--c-blue); color: #0a2535; }
+.btn-doodle-orange { background: var(--c-orange); color: #fff; }
+.btn-doodle-purple { background: var(--c-purple); color: #fff; }
+.btn-doodle-ghost  { background: var(--card-bg); color: var(--text-primary); }
+.btn-doodle-sm     { font-size: 12px; padding: 6px 14px; }
+.btn-doodle-lg     { font-size: 16px; padding: 14px 28px; }
+.btn-doodle-dark   { background: var(--ink); color: var(--paper); }
+
+/* ─── Doodle Badges ──────────────────────────────────────────────────────── */
+.badge-doodle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border: 2px solid var(--border-color);
+  border-radius: 20px;
+  box-shadow: var(--shadow-sm);
+  background: var(--c-yellow);
+  color: var(--text-primary);
+}
+.badge-green  { background: var(--c-green); color: #0a2a22; }
+.badge-pink   { background: var(--c-pink); color: white; }
+.badge-orange { background: var(--c-orange); color: white; }
+.badge-purple { background: var(--c-purple); color: white; }
+.badge-blue   { background: var(--c-blue); color: #0a2535; }
+.badge-red    { background: var(--c-red); color: white; }
+.badge-blue   { background: var(--c-blue); }
+
+/* ─── Doodle Inputs ──────────────────────────────────────────────────────── */
+.input-doodle {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border: var(--border-doodle);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  background: var(--input-bg);
+  color: var(--text-primary);
+  width: 100%;
+  outline: none;
+  transition: box-shadow 0.12s, background 0.3s, border-color 0.3s;
+}
+.input-doodle:focus {
+  box-shadow: 4px 4px 0 var(--c-yellow);
+  border-color: var(--c-orange);
+}
+.input-doodle::placeholder { color: var(--text-secondary); }
+
+textarea.input-doodle { resize: vertical; min-height: 80px; }
+
+select.input-doodle {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z' fill='%234a4a6a'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+/* ─── Typography ─────────────────────────────────────────────────────────── */
+.hand { font-family: var(--font-hand); }
+.title-hand { font-family: var(--font-hand); font-size: 28px; font-weight: 700; color: var(--text-primary); }
+.subtitle-hand { font-family: var(--font-hand); font-size: 20px; }
+h1, h2, h3 { font-weight: 800; color: var(--text-primary); }
+
+/* ─── Progress Bar ───────────────────────────────────────────────────────── */
+.progress-doodle {
+  height: 14px;
+  border: 2px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--input-bg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.progress-doodle-fill {
+  height: 100%;
+  border-radius: 20px;
+  background: var(--c-green);
+  transition: width 0.6s cubic-bezier(.25,.8,.25,1);
+}
+
+/* ─── Sidebar Nav ────────────────────────────────────────────────────────── */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.12s;
+  border: 2px solid transparent;
+  color: var(--text-primary);
+}
+.nav-item:hover {
+  background: var(--card-yellow);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transform: translate(-1px, -1px);
+}
+.nav-item.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--border-color);
+  box-shadow: 3px 3px 0 var(--c-yellow);
+}
+
+/* ─── Score Ring ─────────────────────────────────────────────────────────── */
+.score-ring {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.score-ring svg { transform: rotate(-90deg); }
+.score-ring .score-label {
+  position: absolute;
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--text-primary);
+}
+
+/* ─── Doodle Divider ─────────────────────────────────────────────────────── */
+.doodle-divider {
+  border: none;
+  border-top: 2px dashed var(--divider);
+  margin: 16px 0;
+}
+
+/* ─── Mood Buttons ───────────────────────────────────────────────────────── */
+.mood-btn {
+  font-size: 24px;
+  background: var(--input-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s;
+  box-shadow: var(--shadow-sm);
+}
+.mood-btn:hover, .mood-btn.selected {
+  transform: scale(1.2) rotate(-5deg);
+  box-shadow: var(--shadow);
+  background: var(--c-yellow);
+}
+
+/* ─── Tag ────────────────────────────────────────────────────────────────── */
+.tag-doodle {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 10px;
+  border: 2px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--input-bg);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-primary);
+}
+
+/* ─── Dark mode sidebar override ─────────────────────────────────────────── */
+[data-theme="dark"] .sidebar-inner {
+  background: var(--sidebar-bg) !important;
+  box-shadow: 3px 0 0 var(--border-color) !important;
+}
+[data-theme="dark"] .doodle-card-yellow { color: var(--c-yellow); }
+[data-theme="dark"] .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ─── Theme Toggle Button ────────────────────────────────────────────────── */
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  z-index: 999;
+  background: var(--card-bg);
+  border: var(--border-doodle);
+  border-radius: 50px;
+  padding: 8px 16px;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-primary);
+  transition: all 0.15s;
+}
+.theme-toggle:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-2deg); }
+  50%       { transform: rotate(2deg); }
+}
+@keyframes float-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pop {
+  0%   { transform: scale(0.8); opacity: 0; }
+  60%  { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pulse-ring {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.6; }
+}
+
+.animate-float  { animation: float-up 0.4s ease forwards; }
+.animate-pop    { animation: pop 0.3s cubic-bezier(.25,.8,.25,1) forwards; }
+.animate-wiggle { animation: wiggle 0.5s ease-in-out; }
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 10px; }
+
+/* ─── Utility ────────────────────────────────────────────────────────────── */
+.flex            { display: flex; }
+.flex-col        { display: flex; flex-direction: column; }
+.items-center    { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2  { gap: 8px; }
+.gap-3  { gap: 12px; }
+.gap-4  { gap: 16px; }
+.w-full { width: 100%; }
+.mt-2   { margin-top: 8px; }
+.mt-3   { margin-top: 12px; }
+.mt-4   { margin-top: 16px; }
+.mb-2   { margin-bottom: 8px; }
+.mb-3   { margin-bottom: 12px; }
+.mb-4   { margin-bottom: 16px; }
+.text-sm  { font-size: 13px; }
+.text-xs  { font-size: 11px; }
+.opacity-60 { opacity: 0.6; }
+.font-bold  { font-weight: 700; }
+.font-black { font-weight: 900; }

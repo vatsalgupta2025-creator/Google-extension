@@ -22,6 +22,7 @@ export default defineConfig({
     }
   ],
   build: {
+    modulePreload: false,
     rollupOptions: {
       input: {
         popup: resolve(__dirname, 'popup.html'),

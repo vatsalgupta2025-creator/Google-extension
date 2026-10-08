@@ -24,13 +24,13 @@ export type SiteCategory =
 export interface Goal {
   id: string
   title: string
-  description?: string
-  category: GoalCategory
-  priority: Priority
-  targetMinutes: number
+  type: 'binary' | 'numeric'
+  target: number
+  unit?: string
+  isMandatory: boolean
+  reminderTime?: string // "HH:MM" format
+  currentProgress: number
   deadline: string // ISO date string "YYYY-MM-DD"
-  recurrence: Recurrence
-  status: GoalStatus
   createdAt: number
   updatedAt: number
 }
@@ -39,10 +39,6 @@ export interface GoalCompletion {
   id: string
   goalId: string
   date: string
-  note?: string
-  difficulty?: Difficulty
-  mood?: Mood
-  actualMinutes?: number
   completedAt: number
 }
 
@@ -125,6 +121,7 @@ export interface AIContext {
 
 export interface UserProfile {
   name: string
+  email?: string
   currentFocus: string[]
   learningGoals: string[]
   preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night'

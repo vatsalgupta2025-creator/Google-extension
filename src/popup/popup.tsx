@@ -53,9 +53,9 @@ export default function Popup() {
       backgroundSize: '20px 20px',
     }}>
       <div style={{
-        background: 'var(--c-yellow)', border: '2.5px solid var(--doodle-ink)',
+        background: 'var(--c-yellow)', border: '2.5px solid var(--ink)',
         borderRadius: 14, padding: '14px 16px', marginBottom: 14,
-        boxShadow: '3px 3px 0 var(--doodle-ink)',
+        boxShadow: '3px 3px 0 var(--ink)',
       }}>
         <div style={{ fontFamily: 'Caveat, cursive', fontSize: 22, fontWeight: 700 }}>
           {getGreeting(profile?.name || 'Friend').split(',')[0]} 👋
@@ -67,13 +67,13 @@ export default function Popup() {
 
       <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
         {[
-          { icon: <Target size={11} />, label: 'Goals', value: `${completed}/${goals.length}`, bg: 'white' },
-          { icon: <Clock size={11} />, label: 'Time', value: formatSeconds(todaySeconds), bg: '#e8faff' },
-          { icon: <Zap size={11} />, label: 'Score', value: `${score}`, bg: '#f5eeff' },
+          { icon: <Target size={11} />, label: 'Goals', value: `${completed}/${goals.length}`, bg: 'var(--card-bg)' },
+          { icon: <Clock size={11} />, label: 'Time', value: formatSeconds(todaySeconds), bg: 'var(--card-blue)' },
+          { icon: <Zap size={11} />, label: 'Score', value: `${score}`, bg: 'var(--card-purple)' },
         ].map(({ icon, label, value, bg }) => (
           <div key={label} style={{
-            flex: 1, background: bg, border: '2.5px solid var(--doodle-ink)',
-            borderRadius: 12, padding: 12, boxShadow: '2px 2px 0 var(--doodle-ink)', textAlign: 'center',
+            flex: 1, background: bg, border: '2.5px solid var(--ink)',
+            borderRadius: 12, padding: 12, boxShadow: '2px 2px 0 var(--ink)', textAlign: 'center',
           }}>
             <div style={{ fontSize: 11, fontWeight: 800, opacity: 0.6, marginBottom: 4 }}>
               {icon} {label}
@@ -84,9 +84,9 @@ export default function Popup() {
       </div>
 
       <div style={{
-        background: 'white', border: '2.5px solid var(--doodle-ink)',
+        background: 'var(--card-bg)', border: '2.5px solid var(--ink)',
         borderRadius: 12, padding: '10px 14px', marginBottom: 14,
-        boxShadow: '2px 2px 0 var(--doodle-ink)',
+        boxShadow: '2px 2px 0 var(--ink)',
       }}>
         <div style={{ fontSize: 11, fontWeight: 800, opacity: 0.6 }}>🌐 Currently on</div>
         <div style={{ fontWeight: 800, fontSize: 15, marginTop: 2 }}>{activeSite}</div>
@@ -96,20 +96,22 @@ export default function Popup() {
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 12, fontWeight: 800, opacity: 0.6, marginBottom: 8 }}>TODAY'S GOALS</div>
           {goals.slice(0, 3).map((g) => {
-            const done = completions.some((c) => c.goalId === g.id)
+            const done = g.currentProgress >= g.target
             return (
               <div key={g.id} style={{
                 display: 'flex', alignItems: 'center', gap: 8,
-                background: done ? '#e6fff8' : 'white',
-                border: '2px solid var(--doodle-ink)',
+                background: done ? 'var(--card-mint)' : 'var(--card-bg)',
+                border: `2px solid ${g.isMandatory ? 'var(--c-orange)' : 'var(--ink)'}`,
                 borderRadius: 10, padding: '8px 12px', marginBottom: 6,
-                boxShadow: '2px 2px 0 var(--doodle-ink)',
+                boxShadow: '2px 2px 0 var(--ink)',
               }}>
-                <span style={{ fontSize: 16 }}>{done ? '✅' : '⭕'}</span>
+                <span style={{ fontSize: 16 }}>{done ? '✅' : (g.type === 'numeric' ? '📈' : '⭕')}</span>
                 <span style={{ fontWeight: 700, fontSize: 13, flex: 1, textDecoration: done ? 'line-through' : 'none', opacity: done ? 0.6 : 1 }}>
                   {g.title}
                 </span>
-                <span style={{ fontSize: 11, fontWeight: 800, opacity: 0.5 }}>{g.targetMinutes}m</span>
+                <span style={{ fontSize: 11, fontWeight: 800, opacity: 0.5 }}>
+                  {g.type === 'numeric' ? `${g.currentProgress}/${g.target} ${g.unit || ''}` : ''}
+                </span>
               </div>
             )
           })}
@@ -119,8 +121,8 @@ export default function Popup() {
       <button
         onClick={openDashboard}
         style={{
-          width: '100%', background: 'var(--doodle-ink)', color: 'white',
-          border: '2.5px solid var(--doodle-ink)', borderRadius: 12,
+          width: '100%', background: 'var(--ink)', color: 'var(--paper)',
+          border: '2.5px solid var(--ink)', borderRadius: 12,
           padding: '12px 16px', fontFamily: 'Nunito, sans-serif',
           fontWeight: 800, fontSize: 14, cursor: 'pointer',
           boxShadow: '3px 3px 0 var(--c-yellow)', display: 'flex',
